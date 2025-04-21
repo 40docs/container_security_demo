@@ -5,11 +5,13 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  pull_request_target:
+    types: [opened, synchronize]
   workflow_dispatch:
 
 permissions:
   packages: write
-  pull_requests: write
+  pull-requests: write
   contents: read
 
 env:
