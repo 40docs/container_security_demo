@@ -9,6 +9,7 @@ on:
 
 permissions:
   packages: write
+  pull_requests: write
   contents: read
 
 env:
