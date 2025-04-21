@@ -1,7 +1,7 @@
 # Use Alpine as base
-FROM alpine:3.10
+FROM alpine:3.18
 
-LABEL maintainer = "ajammes@fortinet.ca"
+LABEL maintainer = "ajammes@fortinet.com"
 
 RUN apk update && \
     apk add curl && \
