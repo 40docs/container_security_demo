@@ -1,5 +1,5 @@
 # Use Alpine as base
-FROM alpine:3.19
+FROM alpine:3.12
 
 LABEL maintainer = "ajammes@fortinet.com"
 
