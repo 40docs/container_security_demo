@@ -115,7 +115,7 @@ Push the change. The scan should:
 
 ![image](https://github.com/user-attachments/assets/492ffa6d-1f54-4980-ac4a-e5364bd37554)
 
-note: there are still vulnerabilities found, but none in violation of my FortiCNAPP Policy set in Block for Criticial CVE's with available Fixes.
+**Note**: there are still vulnerabilities found, but none in violation of my FortiCNAPP Policy set in Block for Criticial CVE's with available Fixes.
 
 ---
 
