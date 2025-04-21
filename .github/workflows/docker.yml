@@ -38,15 +38,14 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:scan-temp
 
       - name: Scan image with Lacework
-        uses: lacework/lw-scanner-action@v1.3.0
+        uses: lacework/lw-scanner-action@v1.4.0
         with:
           LW_ACCOUNT_NAME: ${{ secrets.LW_ACCOUNT_NAME }}
           LW_ACCESS_TOKEN: ${{ secrets.LW_ACCESS_TOKEN }}
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: scan-temp
           SAVE_RESULTS_IN_LACEWORK: true
-          SAVE_BUILD_REPORT: true
-          BUILD_REPORT_FILE_NAME: report.html
+          RESULTS_IN_GITHUB_SUMMARY: true
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -64,3 +63,15 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
             ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
+
+      - name: Change formatting for PR
+        run: |
+            echo "# Lacework Inline Scanner Result" > pr-results.md
+            echo "<pre>" >> pr-results.md
+            cat results.stdout >> pr-results.md
+            echo "</pre>" >> pr-results.md
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: pr-results.md
