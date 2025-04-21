@@ -21,7 +21,7 @@ jobs:
         with:
           LW_ACCOUNT_NAME: ${{ secrets.LW_ACCOUNT_NAME }}
           LW_ACCESS_TOKEN: ${{ secrets.LW_ACCESS_TOKEN }}
-          IMAGE_NAME: inline_scanner_test:latest
+          IMAGE_NAME: inline_scanner_test
           IMAGE_TAG: latest
           SAVE_RESULTS_IN_LACEWORK: true
           SAVE_BUILD_REPORT: true
