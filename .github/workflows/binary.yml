@@ -34,10 +34,11 @@ jobs:
           load: true
           tags: ${{ env.IMAGE_NAME }}:scan-temp
 
-      - name: Run lw-scanner image evaluate
+      - name: Install lw-scanner
         run: |
-          curl -L https://github.com/lacework/lacework-cli/releases/latest/download/lw-scanner-linux-amd64 -o lw-scanner
+          curl -fL https://github.com/lacework/lacework-vulnerability-scanner/releases/latest/download/lw-scanner-linux-amd64 -o lw-scanner
           chmod +x lw-scanner
+          sudo mv lw-scanner /usr/local/bin/lw-scanner
 
           ./lw-scanner config auth \
             --account "${{ secrets.LW_ACCOUNT_NAME }}" \
