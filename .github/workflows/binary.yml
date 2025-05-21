@@ -1,0 +1,96 @@
+name: Build, Scan, and Push Docker Image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  pull-requests: write
+  contents: read
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/container_security_demo
+  VERSION: v1.0.0
+
+jobs:
+  build-scan-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image (for scanning)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:scan-temp
+
+      - name: Run lw-scanner image evaluate
+        run: |
+          lw-scanner config auth \
+            --account "${{ secrets.LW_ACCOUNT_NAME }}" \
+            --access-token "${{ secrets.LW_ACCESS_TOKEN }}"
+      
+          lw-scanner image evaluate ${{env.IMAGE_NAME}}:scan-temp \
+            --opa-path ./policies \
+            --output json > results.json
+
+      - name: Fail if policy decision is "fail"
+        run: |
+          if grep -q '"decision": *"fail"' results.json; then
+            echo "OPA policy evaluation failed."
+            exit 1
+          else
+            echo "OPA policy passed."
+          fi
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/head/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image (tagged)
+        if: github.ref == 'refs/head/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+            ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
+
+      - name: Change formatting for PR
+        if: github.event_name == 'pull_request'
+        run: |
+            echo "# Lacework Inline Scanner Result" > pr-results.md
+            echo "<pre>" >> pr-results.md
+            cat results.stdout >> pr-results.md
+            echo "</pre>" >> pr-results.md
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: pr-results.md
+
+      - name: Re-check scan result and fail if needed
+        if: github.event_name == 'pull_request'
+        run: |
+            if grep -q "Policy.*failed" results.stdout; then
+            echo "Lacework scan failed policy check. Failing job."
+            exit 1
+            fi
+
