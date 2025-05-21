@@ -36,6 +36,9 @@ jobs:
 
       - name: Run lw-scanner image evaluate
         run: |
+          curl -L https://github.com/lacework/lacework-cli/releases/latest/download/lw-scanner-linux-amd64 -o lw-scanner
+          chmod +x lw-scanner
+
           lw-scanner config auth \
             --account "${{ secrets.LW_ACCOUNT_NAME }}" \
             --access-token "${{ secrets.LW_ACCESS_TOKEN }}"
