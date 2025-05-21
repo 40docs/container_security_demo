@@ -1,4 +1,4 @@
-name: Build, Scan, and Push Docker Image
+name: Inline Scan using LW Binary
 
 on:
   workflow_dispatch:
