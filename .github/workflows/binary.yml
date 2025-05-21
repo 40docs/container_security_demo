@@ -49,18 +49,8 @@ jobs:
           lw-scanner image evaluate ${{env.IMAGE_NAME}}:scan-temp \
             -n "${{ secrets.LW_ACCOUNT_NAME }}" \
             -t "${{ secrets.LW_ACCESS_TOKEN }}" \
-            --opa-path ./policies \
-            --output json > results.json
+            --policy
 
-
-      - name: Fail if policy decision is "fail"
-        run: |
-          if grep -q '"decision": *"fail"' results.json; then
-            echo "OPA policy evaluation failed."
-            exit 1
-          else
-            echo "OPA policy passed."
-          fi
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/head/main'
