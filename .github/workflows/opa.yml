@@ -1,4 +1,4 @@
-name: Inline Scan using LW Binary
+name: Evaluate against Rego policies
 
 on:
   workflow_dispatch:
