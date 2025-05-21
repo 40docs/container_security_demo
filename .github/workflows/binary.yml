@@ -49,38 +49,6 @@ jobs:
           lw-scanner image evaluate ${{env.IMAGE_NAME}}:scan-temp \
             -n "${{ secrets.LW_ACCOUNT_NAME }}" \
             -t "${{ secrets.LW_ACCESS_TOKEN }}" \
-
-      - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/head/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Push Docker Image (tagged)
-        if: github.ref == 'refs/head/main'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-            ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
-
-      - name: Change formatting for PR
-        if: github.event_name == 'pull_request'
-        run: |
-            echo "# Lacework Inline Scanner Result" > pr-results.md
-            echo "<pre>" >> pr-results.md
-            cat results.stdout >> pr-results.md
-            echo "</pre>" >> pr-results.md
-
-      - name: Comment PR
-        if: github.event_name == 'pull_request'
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          filePath: pr-results.md
+            --policy
 
 
